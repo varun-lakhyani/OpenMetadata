@@ -24,6 +24,7 @@ import org.openmetadata.it.factories.DatabaseSchemaTestFactory;
 import org.openmetadata.it.factories.DatabaseServiceTestFactory;
 import org.openmetadata.it.factories.UserTestFactory;
 import org.openmetadata.it.util.EntityRulesUtil;
+import org.openmetadata.it.util.RdfTestUtils;
 import org.openmetadata.it.util.SdkClients;
 import org.openmetadata.it.util.TestNamespace;
 import org.openmetadata.schema.api.classification.CreateClassification;
@@ -85,7 +86,6 @@ import org.openmetadata.sdk.fluent.builders.ColumnBuilder;
 import org.openmetadata.sdk.models.ListParams;
 import org.openmetadata.sdk.models.ListResponse;
 import org.openmetadata.sdk.models.TableColumnList;
-import org.openmetadata.service.util.RdfTestUtils;
 
 /**
  * Integration tests for Table entity operations.
@@ -1670,6 +1670,74 @@ public class TableResourceIT extends BaseEntityIT<Table, CreateTable> {
     Table updated = client.tables().updateDataModel(table.getId(), dataModel);
     assertNotNull(updated.getDataModel());
     assertEquals("Test data model", updated.getDataModel().getDescription());
+  }
+
+  @Test
+  void put_tableDataModel_replacesConflictingMutuallyExclusiveTags(TestNamespace ns) {
+    OpenMetadataClient client = SdkClients.adminClient();
+
+    TagLabel tier1Tag =
+        new TagLabel().withTagFQN("Tier.Tier1").withSource(TagLabel.TagSource.CLASSIFICATION);
+    TagLabel tier2Tag =
+        new TagLabel().withTagFQN("Tier.Tier2").withSource(TagLabel.TagSource.CLASSIFICATION);
+
+    CreateTable createRequest =
+        createRequest(ns.prefix("tier_conflict_table"), ns).withTags(List.of(tier2Tag));
+    Table table = createEntity(createRequest);
+
+    Table fetched = client.tables().get(table.getId().toString(), "tags,columns");
+    assertTrue(
+        fetched.getTags().stream().anyMatch(t -> t.getTagFQN().equals("Tier.Tier2")),
+        "Table should have Tier2 tag");
+
+    DataModel dataModel =
+        new DataModel()
+            .withModelType(DataModel.ModelType.DBT)
+            .withSql("select * from test")
+            .withTags(List.of(tier1Tag));
+    client.tables().updateDataModel(table.getId(), dataModel);
+
+    Table result = client.tables().get(table.getId().toString(), "tags");
+    assertTrue(
+        result.getTags().stream().anyMatch(t -> t.getTagFQN().equals("Tier.Tier1")),
+        "Table should have Tier1 tag from dbt");
+    assertFalse(
+        result.getTags().stream().anyMatch(t -> t.getTagFQN().equals("Tier.Tier2")),
+        "Table should not have Tier2 tag after dbt update");
+  }
+
+  @Test
+  void put_tableDataModel_preservesNonConflictingManualTags(TestNamespace ns) {
+    OpenMetadataClient client = SdkClients.adminClient();
+
+    TagLabel tier2Tag =
+        new TagLabel().withTagFQN("Tier.Tier2").withSource(TagLabel.TagSource.CLASSIFICATION);
+    TagLabel piiTag =
+        new TagLabel().withTagFQN("PII.Sensitive").withSource(TagLabel.TagSource.CLASSIFICATION);
+
+    CreateTable createRequest =
+        createRequest(ns.prefix("tier_preserve_table"), ns).withTags(List.of(tier2Tag, piiTag));
+    Table table = createEntity(createRequest);
+
+    TagLabel tier1Tag =
+        new TagLabel().withTagFQN("Tier.Tier1").withSource(TagLabel.TagSource.CLASSIFICATION);
+    DataModel dataModel =
+        new DataModel()
+            .withModelType(DataModel.ModelType.DBT)
+            .withSql("select * from test")
+            .withTags(List.of(tier1Tag));
+    client.tables().updateDataModel(table.getId(), dataModel);
+
+    Table result = client.tables().get(table.getId().toString(), "tags");
+    assertTrue(
+        result.getTags().stream().anyMatch(t -> t.getTagFQN().equals("Tier.Tier1")),
+        "Table should have Tier1 from dbt");
+    assertTrue(
+        result.getTags().stream().anyMatch(t -> t.getTagFQN().equals("PII.Sensitive")),
+        "Table should preserve non-conflicting PII tag");
+    assertFalse(
+        result.getTags().stream().anyMatch(t -> t.getTagFQN().equals("Tier.Tier2")),
+        "Table should not have Tier2 after dbt update");
   }
 
   @Test
