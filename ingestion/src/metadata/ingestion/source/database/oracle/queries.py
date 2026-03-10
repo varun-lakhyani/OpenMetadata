@@ -187,7 +187,7 @@ WHERE
         SELECT
             USERNAME
         FROM
-    {prefix}_USERS
+            {prefix}_USERS
         WHERE
             ROWNUM = 1
     )

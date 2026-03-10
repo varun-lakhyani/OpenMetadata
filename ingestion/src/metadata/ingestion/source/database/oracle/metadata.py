@@ -61,6 +61,7 @@ from metadata.ingestion.source.database.oracle.utils import (
     denormalize_name,
     get_all_view_definitions,
     get_columns,
+    get_indexes,
     get_indexes_preserve_case,
     get_mview_names,
     get_mview_names_dialect,
@@ -109,6 +110,7 @@ Inspector.get_all_table_ddls = get_all_table_ddls
 Inspector.get_table_ddl = get_table_ddl
 
 OracleDialect._get_constraint_data = _get_constraint_data
+OracleDialect.get_indexes = get_indexes
 
 
 class OracleSource(CommonDbSourceService):
