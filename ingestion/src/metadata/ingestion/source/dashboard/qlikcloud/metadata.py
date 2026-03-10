@@ -136,7 +136,7 @@ class QlikcloudSource(QliksenseSource):
         """
         Get Project Name
         """
-        project = self.projects_map[dashboard_details.space_id]
+        project = self.projects_map.get(dashboard_details.space_id)
         return project.name if project else None
 
     def get_dashboard_details(self, dashboard: QlikApp) -> dict:
