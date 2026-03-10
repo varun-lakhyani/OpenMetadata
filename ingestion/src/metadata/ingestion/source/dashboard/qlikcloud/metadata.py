@@ -132,14 +132,17 @@ class QlikcloudSource(QliksenseSource):
         """
         return dashboard.name
 
-    def get_project_name(self, dashboard_details: QlikApp) -> Optional[str]:
+    def get_project_name(self, dashboard_details: Optional[QlikApp]) -> Optional[str]:
         """
         Get Project Name
         """
+        if not dashboard_details:
+            return None
+
         project = self.projects_map.get(dashboard_details.space_id)
         return project.name if project else None
 
-    def get_dashboard_details(self, dashboard: QlikApp) -> dict:
+    def get_dashboard_details(self, dashboard: QlikApp) -> Optional[QlikApp]:
         """
         Get app Details
         """
