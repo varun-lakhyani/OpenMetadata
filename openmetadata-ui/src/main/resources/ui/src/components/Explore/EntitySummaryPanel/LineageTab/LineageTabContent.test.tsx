@@ -82,8 +82,7 @@ jest.mock('antd', () => ({
         data-size={size}
         data-testid="button"
         onClick={onClick}
-        {...props}
-      >
+        {...props}>
         {children}
       </button>
     )),
