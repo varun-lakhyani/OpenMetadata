@@ -131,7 +131,7 @@
       "title": "Use DBA Tables",
       "type": "boolean",
       "description": "Use Oracle DBA_* tables instead of ALL_* tables for metadata ingestion. Requires DBA privileges.",
-      "default": false
+      "default": true
     },
     "connectionOptions": {
       "title": "Connection Options",
