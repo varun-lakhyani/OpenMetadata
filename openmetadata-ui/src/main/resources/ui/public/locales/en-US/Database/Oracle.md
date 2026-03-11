@@ -127,8 +127,8 @@ Oracle provides two sets of metadata tables:
 - `DBA_TABLES` — contain metadata for all objects in the database but require DBA privileges to query.
 - `ALL_TABLES` — contain metadata for all objects the current user has access to and do not require elevated privileges.
 
-**Disabled (default):** The connector uses `ALL_TABLES`, which only returns metadata for objects accessible to the current user.
-**Enabled:** The connector uses `DBA_TABLES` to retrieve metadata for all database objects. This requires the Oracle user to have DBA privileges.
+**Disabled:** The connector uses `ALL_TABLES`, which only returns metadata for objects accessible to the current user.
+**Enabled (default):** The connector uses `DBA_TABLES` to retrieve metadata for all database objects. This requires the Oracle user to have DBA privileges.
 $$
 
 $$section
