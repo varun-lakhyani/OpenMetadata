@@ -79,8 +79,7 @@ jest.mock('@openmetadata/ui-core-components', () => ({
     <button
       data-testid={testId}
       disabled={isDisabled || isLoading}
-      onClick={onClick}
-    >
+      onClick={onClick}>
       {children}
     </button>
   ),

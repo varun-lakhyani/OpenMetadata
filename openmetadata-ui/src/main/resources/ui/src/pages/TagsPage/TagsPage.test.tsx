@@ -285,8 +285,7 @@ jest.mock('@openmetadata/ui-core-components', () => ({
       className={className}
       data-testid={testId}
       disabled={isDisabled}
-      onClick={onClick}
-    >
+      onClick={onClick}>
       {children}
     </button>
   ),
@@ -324,8 +323,7 @@ jest.mock('@openmetadata/ui-core-components', () => ({
       aria-disabled={isDisabled}
       data-testid={testId}
       role="switch"
-      onClick={() => onChange?.(!isSelected)}
-    >
+      onClick={() => onChange?.(!isSelected)}>
       toggle
     </button>
   ),

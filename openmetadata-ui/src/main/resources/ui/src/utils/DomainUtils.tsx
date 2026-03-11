@@ -207,6 +207,7 @@ export const getQueryFilterToIncludeDomain = (
                     EntityType.TEST_SUITE,
                     EntityType.QUERY,
                     EntityType.TEST_CASE,
+                    EntityType.TABLE_COLUMN,
                   ],
                 },
               },
@@ -242,6 +243,17 @@ export const getQueryFilterToExcludeDomainTerms = (
                 {
                   term: {
                     'domains.fullyQualifiedName': fqn,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            bool: {
+              must_not: [
+                {
+                  terms: {
+                    entityType: [EntityType.TABLE_COLUMN],
                   },
                 },
               ],
@@ -286,8 +298,8 @@ export const getQueryFilterForDomain = (domainFqn: string) => {
         ],
         must_not: [
           {
-            term: {
-              entityType: 'dataProduct',
+            terms: {
+              entityType: [EntityType.DATA_PRODUCT, EntityType.TABLE_COLUMN],
             },
           },
         ],
@@ -414,13 +426,11 @@ export const renderDomainLink = (
           textClassName
         )}
         data-testid="domain-link"
-        to={getDomainPath(domain?.fullyQualifiedName)}
-      >
+        to={getDomainPath(domain?.fullyQualifiedName)}>
         {trimLink ? (
           <Typography.Text
             className="domain-link-name"
-            ellipsis={{ tooltip: false }}
-          >
+            ellipsis={{ tooltip: false }}>
             {displayName}
           </Typography.Text>
         ) : (
@@ -774,8 +784,7 @@ export const DomainListItemRenderer = (props: EntityReference) => {
           <Typography.Text
             ellipsis
             className="m-l-xss text-xs"
-            type="secondary"
-          >
+            type="secondary">
             {fqn}
           </Typography.Text>
         )}

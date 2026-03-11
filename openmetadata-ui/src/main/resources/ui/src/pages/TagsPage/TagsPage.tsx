@@ -658,8 +658,7 @@ const TagsPage = () => {
         <TagsLeftPanelSkeleton loading={isLoading}>
           <div
             className="p-y-xs d-flex flex-col"
-            data-testid="data-summary-container"
-          >
+            data-testid="data-summary-container">
             <div className="p-x-sm m-b-sm">
               {createClassificationPermission && (
                 <Button
@@ -671,8 +670,7 @@ const TagsPage = () => {
                   onClick={() => {
                     classificationForm.resetFields();
                     handleClassificationDrawerOpen();
-                  }}
-                >
+                  }}>
                   <span className="tw:text-brand-600 tw:font-normal">
                     {t('label.add-entity', {
                       entity: t('label.classification'),
@@ -693,8 +691,7 @@ const TagsPage = () => {
                 )}
                 data-testid="side-panel-classification"
                 key={category.name}
-                onClick={() => onClickClassifications(category)}
-              >
+                onClick={() => onClickClassifications(category)}>
                 <Typography
                   as="p"
                   className={classNames('tw:truncate', {
@@ -702,16 +699,14 @@ const TagsPage = () => {
                       currentClassification?.name === category.name,
                   })}
                   data-testid="tag-name"
-                  title={getEntityName(category)}
-                >
+                  title={getEntityName(category)}>
                   {getEntityName(category)}
                   {category.disabled && (
                     <Badge
                       color="gray"
                       data-testid="disabled"
                       size="sm"
-                      type="pill-color"
-                    >
+                      type="pill-color">
                       {t('label.disabled')}
                     </Badge>
                   )}

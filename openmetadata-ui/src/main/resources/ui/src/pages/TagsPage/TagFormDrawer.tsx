@@ -49,8 +49,7 @@ const TagFormDrawer: FC<TagFormDrawerProps> = ({
     <SlideoutMenu
       data-testid="tag-form-drawer"
       isOpen={open}
-      onOpenChange={handleOpenChange}
-    >
+      onOpenChange={handleOpenChange}>
       {({ close }) => (
         <>
           <SlideoutMenu.Header data-testid="drawer-header" onClose={close}>
@@ -77,8 +76,7 @@ const TagFormDrawer: FC<TagFormDrawerProps> = ({
               <Button
                 color="tertiary"
                 data-testid="cancel-button"
-                onClick={close}
-              >
+                onClick={close}>
                 {t('label.cancel')}
               </Button>
               <Button
@@ -86,8 +84,7 @@ const TagFormDrawer: FC<TagFormDrawerProps> = ({
                 data-testid="save-button"
                 isDisabled={isLoading}
                 isLoading={isLoading}
-                onClick={() => formRef.submit()}
-              >
+                onClick={() => formRef.submit()}>
                 {t('label.save')}
               </Button>
             </div>
