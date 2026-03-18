@@ -88,13 +88,13 @@ def get_connection(connection: PubSubConnection) -> PubSubClient:
     Raises:
         ValueError: If project_id cannot be determined from connection config.
     """
-    set_google_credentials(connection.gcpConfig)
-
     try:
         if connection.useEmulator and connection.hostPort:
             os.environ[PUBSUB_EMULATOR_HOST] = connection.hostPort
-        elif PUBSUB_EMULATOR_HOST in os.environ:
-            del os.environ[PUBSUB_EMULATOR_HOST]
+        else:
+            set_google_credentials(connection.gcpConfig)
+            if PUBSUB_EMULATOR_HOST in os.environ:
+                del os.environ[PUBSUB_EMULATOR_HOST]
 
         publisher = pubsub_v1.PublisherClient()
         subscriber = pubsub_v1.SubscriberClient()
@@ -115,9 +115,10 @@ def get_connection(connection: PubSubConnection) -> PubSubClient:
             schema_client=schema_client,
             project_id=project_id,
         )
-    finally:
+    except Exception:
         if connection.useEmulator and PUBSUB_EMULATOR_HOST in os.environ:
             del os.environ[PUBSUB_EMULATOR_HOST]
+        raise
 
 
 def test_connection(

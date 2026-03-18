@@ -16,7 +16,6 @@ import uuid
 from unittest.mock import MagicMock, patch
 
 import pytest
-from google.protobuf.duration_pb2 import Duration
 
 from metadata.ingestion.source.messaging.pubsub.models import (
     PubSubBigQueryConfig,
@@ -200,6 +199,9 @@ class TestPubSubConnection:
         self, mock_subscriber, mock_publisher, mock_set_creds
     ):
         """Test get_connection with emulator enabled"""
+        pytest.importorskip(
+            "google.cloud.pubsub_v1", reason="google-cloud-pubsub not installed"
+        )
         from metadata.ingestion.source.messaging.pubsub.connection import (
             PUBSUB_EMULATOR_HOST,
             get_connection,
@@ -298,18 +300,25 @@ class TestPubSubMetadataParsing:
     @pytest.fixture
     def pubsub_source_class(self):
         """Import PubsubSource class"""
+        pytest.importorskip(
+            "google.cloud.pubsub_v1", reason="google-cloud-pubsub not installed"
+        )
         from metadata.ingestion.source.messaging.pubsub.metadata import PubsubSource
 
         return PubsubSource
 
     def test_format_duration_with_protobuf_duration(self, pubsub_source_class):
         """Test _format_duration with protobuf Duration object"""
+        from google.protobuf.duration_pb2 import Duration
+
         duration = Duration(seconds=604800, nanos=0)
         result = pubsub_source_class._format_duration(None, duration)
         assert result == "604800.0s"
 
     def test_format_duration_with_nanos(self, pubsub_source_class):
         """Test _format_duration with nanoseconds"""
+        from google.protobuf.duration_pb2 import Duration
+
         duration = Duration(seconds=100, nanos=500000000)
         result = pubsub_source_class._format_duration(None, duration)
         assert result == "100.5s"
@@ -326,6 +335,8 @@ class TestPubSubMetadataParsing:
 
     def test_parse_retention_with_protobuf_duration(self, pubsub_source_class):
         """Test _parse_retention with protobuf Duration object"""
+        from google.protobuf.duration_pb2 import Duration
+
         duration = Duration(seconds=604800, nanos=0)
         result = pubsub_source_class._parse_retention(None, duration)
         assert result == 604800000.0
