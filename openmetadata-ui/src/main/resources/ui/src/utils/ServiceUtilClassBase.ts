@@ -66,6 +66,7 @@ import {
   GREENPLUM,
   HEX,
   HIVE,
+  HUBSPOT,
   IBMDB2,
   ICEBERGE,
   IMPALA,
@@ -565,6 +566,9 @@ class ServiceUtilClassBase {
 
       case this.DashboardServiceTypeSmallCase.Looker:
         return LOOKER;
+
+      case this.DashboardServiceTypeSmallCase.Hubspot:
+        return HUBSPOT;
 
       case this.DashboardServiceTypeSmallCase.Tableau:
         return TABLEAU;

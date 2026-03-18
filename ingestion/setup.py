@@ -76,6 +76,7 @@ VERSIONS = {
     "kafka-connect": "kafka-connect-py==0.10.11",
     "griffe2md": "griffe2md~=1.2",
     "factory-boy": "factory-boy~=3.3.3",
+    "hubspot": "hubspot-api-client~=10.0",
 }
 
 COMMONS = {
@@ -287,6 +288,7 @@ plugins: Dict[str, Set[str]] = {
         VERSIONS["cockroach"],
         "psycopg2-binary",
     },
+    "hubspot": {VERSIONS["hubspot"]},
     "hive": {
         *COMMONS["hive"],
         "thrift>=0.13,<1",

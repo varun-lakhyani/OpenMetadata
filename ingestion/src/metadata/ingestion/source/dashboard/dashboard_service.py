@@ -204,7 +204,7 @@ from metadata.utils.helpers import retry_with_docker_host
 # pylint: disable=too-many-public-methods
 class DashboardServiceSource(TopologyRunnerMixin, Source, ABC):
     """
-    Base class for Database Services.
+    Base class for Dashboard Services.
     It implements the topology and context.
     """
 

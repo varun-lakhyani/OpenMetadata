@@ -107,6 +107,7 @@ import pipelineDefault from '../assets/svg/pipeline.svg';
 import securitySafe from '../assets/svg/security-safe.svg';
 import googleDrive from '../assets/svg/service-icon-google-drive.svg';
 import hex from '../assets/svg/service-icon-hex.svg';
+import hubspot from '../assets/svg/service-icon-hubspot.svg';
 import mlflow from '../assets/svg/service-icon-mlflow.svg';
 import sftp from '../assets/svg/service-icon-sftp.svg';
 import teradata from '../assets/svg/teradata.svg';
@@ -155,6 +156,7 @@ export const REDPANDA = redpanda;
 export const SUPERSET = superset;
 export const SYNAPSE = synapse;
 export const LOOKER = looker;
+export const HUBSPOT = hubspot;
 export const MICROSTRATEGY = microstrategy;
 export const TABLEAU = tableau;
 export const REDASH = redash;
@@ -464,6 +466,7 @@ export const BETA_SERVICES = [
   DatabaseServiceType.StarRocks,
   DriveServiceType.SFTP,
   DatabaseServiceType.Informix,
+  DashboardServiceType.Hubspot,
 ];
 
 export const TEST_CONNECTION_INITIAL_MESSAGE =

@@ -34,6 +34,7 @@
         "ThoughtSpot",
         "Grafana",
         "Hex",
+        "Hubspot",
         "Ssrs"
       ],
       "javaEnums": [
@@ -93,6 +94,9 @@
         },
         {
           "name": "Hex"
+        },
+        {
+          "name" : "Hubspot"
         },
         {
           "name": "Ssrs"
@@ -166,6 +170,9 @@
             },
             {
               "$ref": "./connections/dashboard/hexConnection.json"
+            },
+            {
+              "$ref" : "./connections/dashboard/hubspotConnection.json"
             },
             {
               "$ref": "./connections/dashboard/ssrsConnection.json"

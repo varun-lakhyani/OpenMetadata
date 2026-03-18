@@ -97,6 +97,8 @@ export interface DashboardConnection {
  *
  * Hex Connection Config
  *
+ * HubSpot Dashboard Connection Config
+ *
  * SQL Server Reporting Services (SSRS) provides a set of on-premises tools and services to
  * create, deploy, and manage paginated reports
  */
@@ -309,6 +311,8 @@ export interface Connection {
      * Access Token for Mode Dashboard
      *
      * Access token to connect to DOMO
+     *
+     * HubSpot Private App Access Token or OAuth Access Token
      */
     accessToken?: string;
     /**
@@ -425,6 +429,10 @@ export interface Connection {
      * Type of token to use for authentication
      */
     tokenType?: TokenType;
+    /**
+     * HubSpot Hub ID (optional)
+     */
+    hubId?: string;
     [property: string]: any;
 }
 
@@ -1286,6 +1294,8 @@ export enum TokenType {
  *
  * Service type.
  *
+ * HubSpot service type
+ *
  * Type of Dashboard service - Superset, Looker, Redash, Tableau, Metabase, PowerBi, Mode,
  * or Lightdash
  */
@@ -1294,6 +1304,7 @@ export enum DashboardServiceType {
     DomoDashboard = "DomoDashboard",
     Grafana = "Grafana",
     Hex = "Hex",
+    Hubspot = "Hubspot",
     Lightdash = "Lightdash",
     Looker = "Looker",
     Metabase = "Metabase",

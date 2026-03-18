@@ -1,0 +1,32 @@
+{
+  "name": "Hubspot",
+  "displayName": "Hubspot Test Connection",
+  "description": "This Test Connection validates the access against the server and basic metadata extraction of CRM pipelines and custom event definitions.",
+  "steps": [
+    {
+      "name": "CheckAccess",
+      "description": "Validate that the API is accessible with the given credentials",
+      "errorMessage": "Failed to connect to HubSpot. Please validate the access token.",
+      "shortCircuit": true,
+      "mandatory": true
+    },
+    {
+      "name": "GetPipelines",
+      "description": "Verify the CRM pipelines endpoint is accessible (deals pipeline)",
+      "errorMessage": "Failed to reach the pipelines endpoint. Ensure the token has crm.objects.deals.read scope.",
+      "mandatory": true
+    },
+    {
+      "name": "GetCRMSchemas",
+      "description": "Verify the CRM properties endpoint is accessible (contacts object)",
+      "errorMessage": "Failed to reach the CRM properties endpoint. Ensure the token has crm.objects.contacts.read scope.",
+      "mandatory": false
+    },
+    {
+      "name": "GetEventDefinitions",
+      "description": "Verify the behavioral event definitions endpoint is accessible",
+      "errorMessage": "Failed to reach the event definitions endpoint. Ensure the token has behavioral_events.event_definitions.read_write scope.",
+      "mandatory": false
+    }
+  ]
+}

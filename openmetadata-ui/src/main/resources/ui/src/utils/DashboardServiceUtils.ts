@@ -21,6 +21,7 @@ import customDashboardConnection from '../jsons/connectionSchemas/connections/da
 import domoDashboardConnection from '../jsons/connectionSchemas/connections/dashboard/domoDashboardConnection.json';
 import grafanaConnection from '../jsons/connectionSchemas/connections/dashboard/grafanaConnection.json';
 import hexConnection from '../jsons/connectionSchemas/connections/dashboard/hexConnection.json';
+import hubspotConnection from '../jsons/connectionSchemas/connections/dashboard/hubspotConnection.json';
 import lightdashConnection from '../jsons/connectionSchemas/connections/dashboard/lightdashConnection.json';
 import lookerConnection from '../jsons/connectionSchemas/connections/dashboard/lookerConnection.json';
 import metabaseConnection from '../jsons/connectionSchemas/connections/dashboard/metabaseConnection.json';
@@ -48,6 +49,11 @@ export const getDashboardConfig = (type: DashboardServiceType) => {
   switch (type) {
     case DashboardServiceType.Looker: {
       schema = lookerConnection;
+
+      break;
+    }
+    case DashboardServiceType.Hubspot: {
+      schema = hubspotConnection;
 
       break;
     }

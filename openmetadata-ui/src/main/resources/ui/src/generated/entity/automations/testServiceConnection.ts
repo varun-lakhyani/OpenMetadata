@@ -217,6 +217,8 @@ export interface TestServiceConnectionConnection {
  *
  * Hex Connection Config
  *
+ * HubSpot Dashboard Connection Config
+ *
  * SQL Server Reporting Services (SSRS) provides a set of on-premises tools and services to
  * create, deploy, and manage paginated reports
  *
@@ -1250,6 +1252,8 @@ export interface ConfigObject {
      * Access token to connect to DOMO
      *
      * Access Token for Mode Dashboard
+     *
+     * HubSpot Private App Access Token or OAuth Access Token
      */
     accessToken?: string;
     /**
@@ -1640,6 +1644,10 @@ export interface ConfigObject {
      * Type of token to use for authentication
      */
     tokenType?: TokenType;
+    /**
+     * HubSpot Hub ID (optional)
+     */
+    hubId?: string;
     /**
      * basic.auth.user.info schema registry config property, Client HTTP credentials in the form
      * of username:password.
@@ -4641,6 +4649,8 @@ export enum TokenType {
  *
  * Grafana service type
  *
+ * HubSpot service type
+ *
  * Kafka service type
  *
  * Redpanda service type
@@ -4741,6 +4751,7 @@ export enum ConfigType {
     Greenplum = "Greenplum",
     Hex = "Hex",
     Hive = "Hive",
+    Hubspot = "Hubspot",
     Iceberg = "Iceberg",
     Impala = "Impala",
     Informix = "Informix",

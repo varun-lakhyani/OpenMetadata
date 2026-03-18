@@ -968,6 +968,7 @@ export enum DashboardServiceType {
     DomoDashboard = "DomoDashboard",
     Grafana = "Grafana",
     Hex = "Hex",
+    Hubspot = "Hubspot",
     Lightdash = "Lightdash",
     Looker = "Looker",
     Metabase = "Metabase",
