@@ -169,12 +169,12 @@ class PubsubSource(MessagingServiceSource):
         ):
             schema_info = self._get_schema_info(topic.schema_settings.schema)
 
-        retention_duration = self._format_duration(topic.message_retention_duration)
+        retention_ms = self._parse_retention(topic.message_retention_duration)
 
         return PubSubTopicMetadata(
             name=topic.name,
             labels=dict(topic.labels) if topic.labels else None,
-            message_retention_duration=retention_duration,
+            message_retention_duration=retention_ms or None,
             schema_settings=schema_info,
             subscriptions=subscriptions,
             ordering_enabled=getattr(topic, "message_ordering_enabled", False),
@@ -217,9 +217,10 @@ class PubsubSource(MessagingServiceSource):
                         PubSubSubscription(
                             name=sub_path.split("/")[-1],
                             ack_deadline_seconds=sub_info.ack_deadline_seconds,
-                            message_retention_duration=self._format_duration(
+                            message_retention_duration=self._parse_retention(
                                 sub_info.message_retention_duration
-                            ),
+                            )
+                            or None,
                             dead_letter_topic=(
                                 sub_info.dead_letter_policy.dead_letter_topic
                                 if sub_info.dead_letter_policy
@@ -281,12 +282,11 @@ class PubsubSource(MessagingServiceSource):
                 f"{topic_details.topic_name}?project={self.project_id}"
             )
 
-            retention_time = self._parse_retention(metadata.message_retention_duration)
             topic = CreateTopicRequest(
                 name=EntityName(topic_details.topic_name),
                 service=FullyQualifiedEntityName(self.context.get().messaging_service),
                 partitions=1,
-                retentionTime=retention_time,
+                retentionTime=metadata.message_retention_duration or 0.0,
                 sourceUrl=SourceUrl(source_url),
             )
 
@@ -328,25 +328,6 @@ class PubsubSource(MessagingServiceSource):
                     stackTrace=traceback.format_exc(),
                 )
             )
-
-    def _format_duration(
-        self, duration: Optional[Union[Duration, str]]
-    ) -> Optional[str]:
-        """
-        Format a Duration protobuf or string to a string representation.
-
-        Args:
-            duration: Either a protobuf Duration object or a string.
-
-        Returns:
-            String representation of the duration in seconds format (e.g., "604800s").
-        """
-        if not duration:
-            return None
-        if isinstance(duration, Duration):
-            total_seconds = duration.seconds + (duration.nanos / 1e9)
-            return f"{total_seconds}s"
-        return str(duration)
 
     def _parse_retention(self, duration: Optional[Union[Duration, str]]) -> float:
         """
@@ -462,6 +443,13 @@ class PubsubSource(MessagingServiceSource):
                         f"expected 'project.dataset.table' format"
                     )
                     continue
+
+                if len(parts) > 3:
+                    logger.warning(
+                        f"BigQuery table reference '{bq_table_ref}' has "
+                        f"{len(parts)} dot-separated segments, expected 3 "
+                        f"('project.dataset.table'). Using first 3 segments."
+                    )
 
                 database_name, schema_name, table_name = (
                     parts[0],

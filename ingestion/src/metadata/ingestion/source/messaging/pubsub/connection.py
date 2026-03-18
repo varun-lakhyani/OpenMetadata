@@ -90,12 +90,12 @@ def get_connection(connection: PubSubConnection) -> PubSubClient:
     """
     set_google_credentials(connection.gcpConfig)
 
-    if connection.useEmulator and connection.hostPort:
-        os.environ[PUBSUB_EMULATOR_HOST] = connection.hostPort
-    elif PUBSUB_EMULATOR_HOST in os.environ:
-        del os.environ[PUBSUB_EMULATOR_HOST]
-
     try:
+        if connection.useEmulator and connection.hostPort:
+            os.environ[PUBSUB_EMULATOR_HOST] = connection.hostPort
+        elif PUBSUB_EMULATOR_HOST in os.environ:
+            del os.environ[PUBSUB_EMULATOR_HOST]
+
         publisher = pubsub_v1.PublisherClient()
         subscriber = pubsub_v1.SubscriberClient()
 
@@ -115,10 +115,9 @@ def get_connection(connection: PubSubConnection) -> PubSubClient:
             schema_client=schema_client,
             project_id=project_id,
         )
-    except Exception:
+    finally:
         if connection.useEmulator and PUBSUB_EMULATOR_HOST in os.environ:
             del os.environ[PUBSUB_EMULATOR_HOST]
-        raise
 
 
 def test_connection(

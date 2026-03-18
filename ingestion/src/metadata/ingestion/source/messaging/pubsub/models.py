@@ -34,7 +34,7 @@ class PubSubSubscription(BaseModel):
 
     name: str
     ack_deadline_seconds: Optional[int] = None
-    message_retention_duration: Optional[str] = None
+    message_retention_duration: Optional[float] = None
     dead_letter_topic: Optional[str] = None
     push_endpoint: Optional[str] = None
     filter: Optional[str] = None
@@ -60,7 +60,7 @@ class PubSubTopicMetadata(BaseModel):
 
     name: str
     labels: Optional[Dict[str, str]] = None
-    message_retention_duration: Optional[str] = None
+    message_retention_duration: Optional[float] = None
     schema_settings: Optional[PubSubSchemaInfo] = None
     subscriptions: Optional[List[PubSubSubscription]] = None
     ordering_enabled: bool = False
