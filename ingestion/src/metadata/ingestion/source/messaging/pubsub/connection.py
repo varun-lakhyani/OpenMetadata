@@ -102,7 +102,7 @@ def get_connection(connection: PubSubConnection) -> PubSubClient:
         subscriber = pubsub_v1.SubscriberClient()
 
         schema_client = None
-        if connection.schemaRegistryEnabled:
+        if connection.schemaRegistryEnabled and not connection.useEmulator:
             schema_client = SchemaServiceClient()
 
         project_id = _get_project_id(connection)
