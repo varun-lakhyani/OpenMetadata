@@ -17,7 +17,7 @@ export interface PubSubConnection {
     /**
      * GCP credentials configuration for authenticating with Pub/Sub.
      */
-    gcpConfig: GCPCredentials;
+    gcpConfig?: GCPCredentials;
     /**
      * Pub/Sub APIs URL. For local testing with the emulator, use http://localhost:8085.
      */
