@@ -55,7 +55,7 @@ class TestPubSubModels:
         subscription = PubSubSubscription(
             name="test-subscription",
             ack_deadline_seconds=60,
-            message_retention_duration="604800s",
+            message_retention_duration=604800000.0,
             dead_letter_topic="projects/test/topics/dead-letter",
             push_endpoint="https://example.com/push",
             filter='attributes.type = "test"',
@@ -64,7 +64,7 @@ class TestPubSubModels:
         )
         assert subscription.name == "test-subscription"
         assert subscription.ack_deadline_seconds == 60
-        assert subscription.message_retention_duration == "604800s"
+        assert subscription.message_retention_duration == 604800000.0
         assert subscription.dead_letter_topic == "projects/test/topics/dead-letter"
         assert subscription.push_endpoint == "https://example.com/push"
         assert subscription.filter == 'attributes.type = "test"'
@@ -99,7 +99,7 @@ class TestPubSubModels:
         metadata = PubSubTopicMetadata(
             name="projects/test/topics/test-topic",
             labels={"env": "test", "team": "data"},
-            message_retention_duration="604800s",
+            message_retention_duration=604800000.0,
             schema_settings=schema_info,
             subscriptions=[subscription],
             ordering_enabled=True,
@@ -107,7 +107,7 @@ class TestPubSubModels:
         )
         assert metadata.name == "projects/test/topics/test-topic"
         assert metadata.labels == {"env": "test", "team": "data"}
-        assert metadata.message_retention_duration == "604800s"
+        assert metadata.message_retention_duration == 604800000.0
         assert metadata.schema_settings.name == "schema"
         assert len(metadata.subscriptions) == 1
         assert metadata.ordering_enabled is True
@@ -214,11 +214,13 @@ class TestPubSubConnection:
         mock_connection.hostPort = "localhost:8085"
         mock_connection.schemaRegistryEnabled = False
 
-        get_connection(mock_connection)
+        client = get_connection(mock_connection)
 
-        assert os.environ.get(PUBSUB_EMULATOR_HOST) == "localhost:8085"
-
-        del os.environ[PUBSUB_EMULATOR_HOST]
+        assert client.project_id == "test-project"
+        mock_publisher.assert_called_once()
+        mock_subscriber.assert_called_once()
+        mock_set_creds.assert_not_called()
+        assert PUBSUB_EMULATOR_HOST not in os.environ
 
     @patch(
         "metadata.ingestion.source.messaging.pubsub.connection.set_google_credentials"
@@ -306,32 +308,6 @@ class TestPubSubMetadataParsing:
         from metadata.ingestion.source.messaging.pubsub.metadata import PubsubSource
 
         return PubsubSource
-
-    def test_format_duration_with_protobuf_duration(self, pubsub_source_class):
-        """Test _format_duration with protobuf Duration object"""
-        from google.protobuf.duration_pb2 import Duration
-
-        duration = Duration(seconds=604800, nanos=0)
-        result = pubsub_source_class._format_duration(None, duration)
-        assert result == "604800.0s"
-
-    def test_format_duration_with_nanos(self, pubsub_source_class):
-        """Test _format_duration with nanoseconds"""
-        from google.protobuf.duration_pb2 import Duration
-
-        duration = Duration(seconds=100, nanos=500000000)
-        result = pubsub_source_class._format_duration(None, duration)
-        assert result == "100.5s"
-
-    def test_format_duration_with_string(self, pubsub_source_class):
-        """Test _format_duration with string input"""
-        result = pubsub_source_class._format_duration(None, "604800s")
-        assert result == "604800s"
-
-    def test_format_duration_with_none(self, pubsub_source_class):
-        """Test _format_duration with None input"""
-        result = pubsub_source_class._format_duration(None, None)
-        assert result is None
 
     def test_parse_retention_with_protobuf_duration(self, pubsub_source_class):
         """Test _parse_retention with protobuf Duration object"""
