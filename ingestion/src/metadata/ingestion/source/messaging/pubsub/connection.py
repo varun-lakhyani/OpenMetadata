@@ -90,6 +90,12 @@ def get_connection(connection: PubSubConnection) -> PubSubClient:
     """
     try:
         if connection.useEmulator and connection.hostPort:
+            if connection.hostPort == "pubsub.googleapis.com":
+                raise ValueError(
+                    "When using the Pub/Sub emulator, 'hostPort' must be set "
+                    "to the emulator address (e.g. 'localhost:8085'), "
+                    "not the production endpoint."
+                )
             os.environ[PUBSUB_EMULATOR_HOST] = connection.hostPort
         else:
             if not connection.gcpConfig:
