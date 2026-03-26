@@ -1327,11 +1327,6 @@ class DatabrickspipelineSource(PipelineServiceSource):
                                 )
                             )
                         )
-
-                else:
-                    logger.debug(
-                        f"No source or target table full name found for {entity_id}"
-                    )
             else:
                 logger.debug(f"No table lineage found for {entity_id}")
         except Exception as exc:

@@ -286,7 +286,7 @@ class DatabricksClient:
         try:
             if not self._entity_table_lineage_executed:
                 logger.info(
-                    "First lineage request detected - performing bulk lineage fetch for all jobs"
+                    "First lineage request detected - performing bulk lineage fetch for all entities"
                 )
                 self.cache_lineage()
 
