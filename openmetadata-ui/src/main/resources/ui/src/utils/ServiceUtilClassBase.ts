@@ -198,6 +198,7 @@ class ServiceUtilClassBase {
     PipelineServiceType.Mulesoft,
     DatabaseServiceType.MicrosoftFabric,
     PipelineServiceType.MicrosoftFabricPipeline,
+    DatabaseServiceType.MicrosoftAccess,
   ];
 
   DatabaseServiceTypeSmallCase = this.convertEnumToLowerCase<
