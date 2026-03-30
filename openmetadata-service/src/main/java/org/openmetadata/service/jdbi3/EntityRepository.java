@@ -2260,8 +2260,7 @@ public abstract class EntityRepository<T extends EntityInterface> {
     for (T e : entities) {
       prepareInternal(e, false);
     }
-    List<T> createdEntities = createManyEntities(entities);
-    return createdEntities;
+    return createManyEntities(entities);
   }
 
   public final T create(UriInfo uriInfo, T entity) {
@@ -5884,10 +5883,7 @@ public abstract class EntityRepository<T extends EntityInterface> {
     }
 
     return domainFqns.stream()
-        .map(
-            domainFqn -> {
-              return Entity.getEntityReferenceByName(DOMAIN, domainFqn, NON_DELETED);
-            })
+        .map(domainFqn -> Entity.getEntityReferenceByName(DOMAIN, domainFqn, NON_DELETED))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
@@ -5901,10 +5897,7 @@ public abstract class EntityRepository<T extends EntityInterface> {
     }
 
     return domains.stream()
-        .map(
-            domain -> {
-              return Entity.getEntityReferenceById(DOMAIN, domain.getId(), NON_DELETED);
-            })
+        .map(domain -> Entity.getEntityReferenceById(DOMAIN, domain.getId(), NON_DELETED))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
@@ -7877,14 +7870,12 @@ public abstract class EntityRepository<T extends EntityInterface> {
               entityType, original.getChangeDescription().getPreviousVersion());
       String json =
           daoCollection.entityExtensionDAO().getExtension(original.getId(), extensionName);
-      T previousVersion = JsonUtils.readValue(json, entityClass);
 
       // IMPORTANT: Do NOT call setFieldsInternal here!
       // The JSON already contains the correct historical state of all fields including experts.
       // Calling setFieldsInternal would fetch current relationships from DB which is wrong.
       // The version history JSON is a complete snapshot of the entity at that point in time.
-
-      return previousVersion;
+      return JsonUtils.readValue(json, entityClass);
     }
   }
 
@@ -9698,10 +9689,9 @@ public abstract class EntityRepository<T extends EntityInterface> {
     BULK_JOBS.put(jobId, mergedJob);
 
     mergedJob.whenComplete(
-        (result, throwable) -> {
-          CompletableFuture.delayedExecutor(1, TimeUnit.HOURS)
-              .execute(() -> BULK_JOBS.remove(jobId));
-        });
+        (result, throwable) ->
+            CompletableFuture.delayedExecutor(1, TimeUnit.HOURS)
+                .execute(() -> BULK_JOBS.remove(jobId)));
 
     return mergedJob;
   }
