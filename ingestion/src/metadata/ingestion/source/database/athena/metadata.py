@@ -375,25 +375,29 @@ class AthenaSource(ExternalTableLineageMixin, CommonDbSourceService):
         tbl_properties = getattr(self._thread_local, ATHENA_TABLE_PROPS_CONTEXT_KEY, {})
         if not tbl_properties:
             return None
-        for prop_name in tbl_properties:
+        registered_properties = {}
+        for prop_name, prop_value in tbl_properties.items():
             with self._processed_prop_lock:
-                if prop_name in self._processed_prop:
-                    continue
-                self._processed_prop.add(prop_name)
-            try:
-                self.metadata.create_or_update_custom_property(
-                    OMetaCustomProperties(
-                        entity_type=Table,
-                        createCustomPropertyRequest=CreateCustomPropertyRequest(
-                            name=prop_name,
-                            description=prop_name,
-                            propertyType=self._string_property_type_ref,
-                        ),
+                already_registered = prop_name in self._processed_prop
+            if not already_registered:
+                try:
+                    self.metadata.create_or_update_custom_property(
+                        OMetaCustomProperties(
+                            entity_type=Table,
+                            createCustomPropertyRequest=CreateCustomPropertyRequest(
+                                name=prop_name,
+                                description=prop_name,
+                                propertyType=self._string_property_type_ref,
+                            ),
+                        )
                     )
-                )
-            except Exception as exc:
-                logger.warning(
-                    f"Failed to register custom property [{prop_name}] for Athena table properties: {exc}"
-                )
-                logger.debug(traceback.format_exc())
-        return tbl_properties
+                    with self._processed_prop_lock:
+                        self._processed_prop.add(prop_name)
+                except Exception as exc:
+                    logger.warning(
+                        f"Failed to register custom property [{prop_name}] for Athena table properties: {exc}"
+                    )
+                    logger.debug(traceback.format_exc())
+                    continue
+            registered_properties[prop_name] = prop_value
+        return registered_properties or None
