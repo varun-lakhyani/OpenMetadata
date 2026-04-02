@@ -341,7 +341,7 @@ class TestAthenaService(unittest.TestCase):
         mock_inspector.get_table_comment.return_value = {"text": "desc"}
         mock_inspector.get_table_options.return_value = {
             "awsathena_location": "s3://bucket/path",
-            "awsathena_tblproperties": {"table_type": "ICEBERG", "inputformat": None},
+            "awsathena_tblproperties": {"prop_key": "prop_value", "null_prop": None},
         }
         self.athena_source.get_table_description(
             MOCK_DATABASE_SCHEMA.name.root, MOCK_TABLE_NAME, mock_inspector
@@ -350,8 +350,8 @@ class TestAthenaService(unittest.TestCase):
         with patch.object(self.athena_source, "metadata") as mock_metadata:
             result = self.athena_source.get_table_extensions(MOCK_TABLE_NAME)
 
-        assert result == {"table_type": "ICEBERG"}
-        assert "inputformat" not in result
+        assert result == {"prop_key": "prop_value"}
+        assert "null_prop" not in result
         mock_metadata.create_or_update_custom_property.assert_called_once()
 
 
