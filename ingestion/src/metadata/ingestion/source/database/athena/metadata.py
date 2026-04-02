@@ -378,8 +378,8 @@ class AthenaSource(ExternalTableLineageMixin, CommonDbSourceService):
         registered_properties = {}
         for prop_name, prop_value in tbl_properties.items():
             with self._processed_prop_lock:
-                already_registered = prop_name in self._processed_prop
-            if not already_registered:
+                prop_already_registered = prop_name in self._processed_prop
+            if not prop_already_registered:
                 try:
                     self.metadata.create_or_update_custom_property(
                         OMetaCustomProperties(
