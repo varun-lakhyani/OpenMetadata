@@ -27,6 +27,7 @@ import azureSQLConnection from '../jsons/connectionSchemas/connections/database/
 import bigQueryConnection from '../jsons/connectionSchemas/connections/database/bigQueryConnection.json';
 import bigTableConnection from '../jsons/connectionSchemas/connections/database/bigTableConnection.json';
 import burstiqConnection from '../jsons/connectionSchemas/connections/database/burstIQConnection.json';
+import microsoftFabricConnection from '../jsons/connectionSchemas/connections/database/microsoftFabricConnection.json';
 import cassandraConnection from '../jsons/connectionSchemas/connections/database/cassandraConnection.json';
 import clickhouseConnection from '../jsons/connectionSchemas/connections/database/clickhouseConnection.json';
 import cockroachConnection from '../jsons/connectionSchemas/connections/database/cockroachConnection.json';
@@ -304,6 +305,11 @@ export const getDatabaseConfig = (type: DatabaseServiceType) => {
     }
     case DatabaseServiceType.BurstIQ: {
       schema = burstiqConnection;
+
+      break;
+    }
+    case DatabaseServiceType.MicrosoftFabric: {
+      schema = microsoftFabricConnection;
 
       break;
     }

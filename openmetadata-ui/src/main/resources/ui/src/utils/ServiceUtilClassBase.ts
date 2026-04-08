@@ -113,6 +113,7 @@ import {
   SQLITE,
   STARROCKS,
   SUPERSET,
+  MICROSOFT_FABRIC,
   SYNAPSE,
   TABLEAU,
   TERADATA,
@@ -202,8 +203,6 @@ class ServiceUtilClassBase {
     DatabaseServiceType.Dremio,
     MetadataServiceType.Collibra,
     PipelineServiceType.Mulesoft,
-    DatabaseServiceType.MicrosoftFabric,
-    PipelineServiceType.MicrosoftFabricPipeline,
     DatabaseServiceType.MicrosoftAccess,
   ];
 
@@ -458,6 +457,7 @@ class ServiceUtilClassBase {
     [this.DatabaseServiceTypeSmallCase.Greenplum, GREENPLUM],
     [this.DatabaseServiceTypeSmallCase.Teradata, TERADATA],
     [this.DatabaseServiceTypeSmallCase.Synapse, SYNAPSE],
+    [this.DatabaseServiceTypeSmallCase.MicrosoftFabric, MICROSOFT_FABRIC],
     [this.DatabaseServiceTypeSmallCase.BurstIQ, BURSTIQ],
     [this.DatabaseServiceTypeSmallCase.Timescale, TIMESCALE],
     [this.MessagingServiceTypeSmallCase.CustomMessaging, TOPIC_DEFAULT],
@@ -496,6 +496,7 @@ class ServiceUtilClassBase {
     [this.PipelineServiceTypeSmallCase.DatabricksPipeline, DATABRICK],
     [this.PipelineServiceTypeSmallCase.OpenLineage, OPENLINEAGE],
     [this.PipelineServiceTypeSmallCase.Flink, FLINK],
+    [this.PipelineServiceTypeSmallCase.MicrosoftFabricPipeline, MICROSOFT_FABRIC],
     [this.MlModelServiceTypeSmallCase.CustomMlModel, ML_MODEL_DEFAULT],
     [this.MlModelServiceTypeSmallCase.Mlflow, MLFLOW],
     [this.MlModelServiceTypeSmallCase.Sklearn, SCIKIT],
