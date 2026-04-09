@@ -297,19 +297,20 @@ class FabricClient:
             # Use the run's start/end time to define the query range
             # Add buffer to ensure we capture all activity runs
             if run.start_time and run.end_time:
-                last_updated_after = (
-                    run.start_time - timedelta(hours=1)
-                ).isoformat() + "Z"
-                last_updated_before = (
-                    run.end_time + timedelta(hours=1)
-                ).isoformat() + "Z"
+                last_updated_after = (run.start_time - timedelta(hours=1)).strftime(
+                    "%Y-%m-%dT%H:%M:%SZ"
+                )
+                last_updated_before = (run.end_time + timedelta(hours=1)).strftime(
+                    "%Y-%m-%dT%H:%M:%SZ"
+                )
             else:
-                # Fallback to a wider range if times are not available
-                from datetime import datetime
+                from datetime import datetime, timezone
 
-                now = datetime.utcnow()
-                last_updated_after = (now - timedelta(days=7)).isoformat() + "Z"
-                last_updated_before = now.isoformat() + "Z"
+                now = datetime.now(timezone.utc)
+                last_updated_after = (now - timedelta(days=7)).strftime(
+                    "%Y-%m-%dT%H:%M:%SZ"
+                )
+                last_updated_before = now.strftime("%Y-%m-%dT%H:%M:%SZ")
 
             request_body = {
                 "filters": [],  # No filters - get all activities
