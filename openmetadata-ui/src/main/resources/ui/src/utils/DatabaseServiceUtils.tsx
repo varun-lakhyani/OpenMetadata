@@ -27,7 +27,6 @@ import azureSQLConnection from '../jsons/connectionSchemas/connections/database/
 import bigQueryConnection from '../jsons/connectionSchemas/connections/database/bigQueryConnection.json';
 import bigTableConnection from '../jsons/connectionSchemas/connections/database/bigTableConnection.json';
 import burstiqConnection from '../jsons/connectionSchemas/connections/database/burstIQConnection.json';
-import microsoftFabricConnection from '../jsons/connectionSchemas/connections/database/microsoftFabricConnection.json';
 import cassandraConnection from '../jsons/connectionSchemas/connections/database/cassandraConnection.json';
 import clickhouseConnection from '../jsons/connectionSchemas/connections/database/clickhouseConnection.json';
 import cockroachConnection from '../jsons/connectionSchemas/connections/database/cockroachConnection.json';
@@ -47,6 +46,7 @@ import greenplumConnection from '../jsons/connectionSchemas/connections/database
 import hiveConnection from '../jsons/connectionSchemas/connections/database/hiveConnection.json';
 import impalaConnection from '../jsons/connectionSchemas/connections/database/impalaConnection.json';
 import mariaDBConnection from '../jsons/connectionSchemas/connections/database/mariaDBConnection.json';
+import microsoftFabricConnection from '../jsons/connectionSchemas/connections/database/microsoftFabricConnection.json';
 import mongoDBConnection from '../jsons/connectionSchemas/connections/database/mongoDBConnection.json';
 import mssqlConnection from '../jsons/connectionSchemas/connections/database/mssqlConnection.json';
 import mysqlConnection from '../jsons/connectionSchemas/connections/database/mysqlConnection.json';
