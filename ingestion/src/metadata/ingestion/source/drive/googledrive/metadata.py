@@ -137,12 +137,13 @@ class GoogleDriveSource(DriveServiceSource):
 
         path_parts = [directory.name]
         current_parents = directory.parents
+        visited = {directory_id}
 
-        # Traverse up the hierarchy
         while current_parents:
-            parent_id = current_parents[
-                0
-            ]  # Google Drive folders have at most one parent
+            parent_id = current_parents[0]
+            if parent_id in visited:
+                break
+            visited.add(parent_id)
             if parent_id in directories_map:
                 parent_dir = directories_map[parent_id]
                 path_parts.insert(0, parent_dir.name)
@@ -886,18 +887,17 @@ class GoogleDriveSource(DriveServiceSource):
             yield Either(right=request)
 
         except Exception as exc:
-            logger.error(
-                f"Error creating spreadsheet request for {spreadsheet_details.properties.title}: {exc}"
+            title = (
+                spreadsheet_details.properties.title
+                if spreadsheet_details.properties
+                else "Unknown"
             )
+            logger.error(f"Error creating spreadsheet request for {title}: {exc}")
             logger.debug(traceback.format_exc())
             yield Either(
                 left=StackTraceError(
-                    name=(
-                        spreadsheet_details.properties.title
-                        if spreadsheet_details.properties
-                        else "Unknown"
-                    ),
-                    error=f"Error creating spreadsheet {spreadsheet_details.properties.title}: {str(exc)}",
+                    name=title,
+                    error=f"Error creating spreadsheet {title}: {str(exc)}",
                     stackTrace=traceback.format_exc(),
                 )
             )
