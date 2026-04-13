@@ -2,7 +2,6 @@ import unittest
 from unittest.mock import patch
 
 from azure.core.credentials import AccessToken
-from azure.identity import ClientSecretCredential
 
 from metadata.generated.schema.entity.services.connections.database.azureSQLConnection import (
     Authentication,
@@ -86,12 +85,18 @@ class TestGetConnectionURL(unittest.TestCase):
             hostPort="localhost:3306",
             databaseSchema="openmetadata_db",
         )
-        with patch.object(
-            ClientSecretCredential,
-            "get_token",
-            return_value=AccessToken(token="mocked_token", expires_on=100),
-        ):
+        with patch("azure.identity.ClientSecretCredential") as mock_csc:
+            mock_instance = mock_csc.return_value
+            mock_instance.get_token.return_value = AccessToken(
+                token="mocked_token", expires_on=100
+            )
             engine_connection = MySQLConnection(connection).client
+            mock_csc.assert_called_once_with(
+                tenant_id="tenantid",
+                client_id="clientid",
+                client_secret="clientsecret",
+            )
+            mock_instance.get_token.assert_called_once_with("scope1", "scope2")
             self.assertEqual(
                 engine_connection.url.render_as_string(hide_password=False),
                 "mysql+pymysql://openmetadata_user:mocked_token@localhost:3306/openmetadata_db",
@@ -122,13 +127,59 @@ class TestGetConnectionURL(unittest.TestCase):
             hostPort="localhost:3306",
             database="openmetadata_db",
         )
-        with patch.object(
-            ClientSecretCredential,
-            "get_token",
-            return_value=AccessToken(token="mocked_token", expires_on=100),
-        ):
+        with patch("azure.identity.ClientSecretCredential") as mock_csc:
+            mock_instance = mock_csc.return_value
+            mock_instance.get_token.return_value = AccessToken(
+                token="mocked_token", expires_on=100
+            )
             engine_connection = PostgresConnection(connection).client
+            mock_csc.assert_called_once_with(
+                tenant_id="tenantid",
+                client_id="clientid",
+                client_secret="clientsecret",
+            )
+            mock_instance.get_token.assert_called_once_with("scope1", "scope2")
             self.assertEqual(
                 engine_connection.url.render_as_string(hide_password=False),
                 "postgresql+psycopg2://openmetadata_user:mocked_token@localhost:3306/openmetadata_db",
+            )
+
+    def test_get_connection_url_timescale(self):
+        from metadata.generated.schema.entity.services.connections.database.timescaleConnection import (
+            TimescaleConnection as TimescaleConnectionConfig,
+        )
+        from metadata.ingestion.source.database.timescale.connection import (
+            TimescaleConnection,
+        )
+
+        connection = TimescaleConnectionConfig(
+            username="openmetadata_user",
+            authType=AzureConfigurationSource(
+                azureConfig=AzureCredentials(
+                    clientId="sentinel-client-id",
+                    tenantId="sentinel-tenant-id",
+                    clientSecret="sentinel-client-secret",
+                    scopes="https://sentinel.scope/.default",
+                )
+            ),
+            hostPort="localhost:5432",
+            database="openmetadata_db",
+        )
+        with patch("azure.identity.ClientSecretCredential") as mock_csc:
+            mock_instance = mock_csc.return_value
+            mock_instance.get_token.return_value = AccessToken(
+                token="sentinel_token", expires_on=100
+            )
+            engine = TimescaleConnection(connection).client
+            mock_csc.assert_called_once_with(
+                tenant_id="sentinel-tenant-id",
+                client_id="sentinel-client-id",
+                client_secret="sentinel-client-secret",
+            )
+            mock_instance.get_token.assert_called_once_with(
+                "https://sentinel.scope/.default"
+            )
+            self.assertIn(
+                "sentinel_token",
+                engine.url.render_as_string(hide_password=False),
             )

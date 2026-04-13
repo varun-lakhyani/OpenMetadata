@@ -1056,6 +1056,33 @@ class SourceConnectionTest(TestCase):
         )
         assert expected_url == get_connection_url(athena_conn_obj)
 
+        # session token appears in URL when provided
+        aws_creds_with_token = awsCredentials.AWSCredentials(
+            awsAccessKeyId="key",
+            awsRegion="us-east-2",
+            awsSecretAccessKey="secret_key",
+            awsSessionToken="sentinel_session_token",
+        )
+        assert "sentinel_session_token" in get_connection_url(
+            AthenaConnection(
+                awsConfig=aws_creds_with_token,
+                s3StagingDir="s3://bucket/path/",
+                scheme=AthenaScheme.awsathena_rest,
+                workgroup="primary",
+            )
+        )
+
+        # catalog id appears in URL when provided
+        assert "sentinel_catalog" in get_connection_url(
+            AthenaConnection(
+                awsConfig=awsCreds,
+                s3StagingDir="s3://bucket/path/",
+                catalogId="sentinel_catalog",
+                scheme=AthenaScheme.awsathena_rest,
+                workgroup="primary",
+            )
+        )
+
     def test_mssql_url(self):
         from metadata.ingestion.source.database.mssql.connection import (
             get_connection_url,
@@ -1284,3 +1311,190 @@ class SourceConnectionTest(TestCase):
                 actual = get_connection_url(connection)
                 expected = data.expected
                 assert actual == expected
+
+    def test_trino_url_with_azure_auth(self):
+        from unittest.mock import patch
+
+        from metadata.generated.schema.entity.services.connections.database.common.azureConfig import (
+            AzureConfigurationSource,
+        )
+        from metadata.generated.schema.security.credentials.azureCredentials import (
+            AzureCredentials,
+        )
+
+        trino_conn_obj = TrinoConnectionConfig(
+            scheme=TrinoScheme.trino,
+            hostPort="localhost:443",
+            username="username",
+            authType=AzureConfigurationSource(
+                azureConfig=AzureCredentials(
+                    clientId="sentinel-client-id",
+                    tenantId="sentinel-tenant-id",
+                    clientSecret="sentinel-client-secret",
+                    scopes="https://sentinel.scope/.default",
+                )
+            ),
+            catalog="catalog",
+        )
+        with patch(
+            "metadata.ingestion.source.database.trino.connection.get_azure_access_token",
+            return_value="sentinel_azure_token",
+        ):
+            conn_args = TrinoConnection.build_connection_args(trino_conn_obj).root
+
+        assert conn_args["auth"] == JWTAuthentication("sentinel_azure_token")
+        assert conn_args["http_scheme"] == "https"
+
+    def test_databricks_auth_personal_access_token(self):
+        from metadata.ingestion.source.database.databricks.auth import get_auth_config
+
+        connection = DatabricksConnection(
+            scheme=DatabricksScheme.databricks_connector,
+            hostPort="sentinel.azuredatabricks.net:443",
+            authType=PersonalAccessToken(token="sentinel-access-token"),
+            httpPath="/sql/1.0/warehouses/sentinel",
+        )
+
+        auth_config = get_auth_config(connection)
+
+        assert auth_config == {"access_token": "sentinel-access-token"}
+
+    def test_athena_url_with_assume_role(self):
+        from unittest.mock import MagicMock, patch
+
+        from metadata.ingestion.source.database.athena.connection import (
+            get_connection_url,
+        )
+
+        aws_creds = awsCredentials.AWSCredentials(
+            awsAccessKeyId="original_key",
+            awsRegion="us-east-2",
+            awsSecretAccessKey="original_secret",
+            assumeRoleArn="arn:aws:iam::123456789012:role/SentinelRole",
+        )
+        conn = AthenaConnection(
+            awsConfig=aws_creds,
+            s3StagingDir="s3://bucket/path/",
+            scheme=AthenaScheme.awsathena_rest,
+            workgroup="primary",
+        )
+        assumed_creds = MagicMock()
+        assumed_creds.accessKeyId = "assumed_key"
+        assumed_creds.secretAccessKey.get_secret_value.return_value = "assumed_secret"
+        assumed_creds.sessionToken = None
+
+        with patch(
+            "metadata.ingestion.source.database.athena.connection.AWSClient.get_assume_role_config",
+            return_value=assumed_creds,
+        ):
+            url = get_connection_url(conn)
+
+        assert "assumed_key" in url
+        assert "assumed_secret" in url
+        assert "original_key" not in url
+        assert "original_secret" not in url
+
+    def test_redshift_iam_url(self):
+        from unittest.mock import MagicMock, patch
+
+        from metadata.generated.schema.entity.services.connections.database.common.iamAuthConfig import (
+            IamAuthConfigurationSource,
+        )
+        from metadata.ingestion.source.database.redshift.connection import (
+            get_redshift_connection_url,
+        )
+
+        iam_conn = RedshiftConnection(
+            username="db_user",
+            hostPort="sentinel-cluster.abc123.us-east-1.redshift.amazonaws.com:5439",
+            database="dev",
+            scheme=RedshiftScheme.redshift_psycopg2,
+            authType=IamAuthConfigurationSource(
+                awsConfig=awsCredentials.AWSCredentials(
+                    awsAccessKeyId="sentinel_key",
+                    awsRegion="us-east-1",
+                    awsSecretAccessKey="sentinel_secret",
+                )
+            ),
+        )
+        mock_redshift_client = MagicMock()
+        mock_redshift_client.get_cluster_credentials.return_value = {
+            "DbUser": "sentinel_iam_user",
+            "DbPassword": "sentinel_iam_password",
+        }
+
+        with patch(
+            "metadata.ingestion.source.database.redshift.connection.AWSClient"
+        ) as mock_aws_client:
+            mock_aws_client.return_value.get_redshift_client.return_value = (
+                mock_redshift_client
+            )
+            url = get_redshift_connection_url(iam_conn)
+
+        mock_aws_client.assert_called_once_with(config=iam_conn.authType.awsConfig)
+        assert "sentinel_iam_user" in url
+        assert "sentinel_iam_password" in url
+        assert "sentinel-cluster.abc123.us-east-1.redshift.amazonaws.com:5439" in url
+
+    def test_bigquery_url_with_project_id(self):
+        import os
+
+        from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
+            BigQueryConnection,
+        )
+        from metadata.generated.schema.security.credentials.gcpCredentials import (
+            GCPCredentials,
+        )
+        from metadata.generated.schema.security.credentials.gcpValues import (
+            GcpCredentialsValues,
+            SingleProjectId,
+        )
+        from metadata.ingestion.source.database.bigquery.connection import (
+            get_connection_url,
+        )
+
+        connection = BigQueryConnection(
+            credentials=GCPCredentials(
+                gcpConfig=GcpCredentialsValues(
+                    projectId=SingleProjectId(root="sentinel-project"),
+                )
+            )
+        )
+        url = get_connection_url(connection)
+        os.environ.pop("GOOGLE_CLOUD_PROJECT", None)
+
+        assert "sentinel-project" in url
+
+    def test_snowflake_private_key(self):
+        from unittest.mock import ANY, MagicMock, patch
+
+        from metadata.ingestion.models.custom_pydantic import CustomSecretStr
+
+        connection = SnowflakeConnectionConfig(
+            scheme=SnowflakeScheme.snowflake,
+            account="sentinel-account",
+            username="sentinel_user",
+            password="sentinel_pass",
+            warehouse="sentinel_warehouse",
+            privateKey=CustomSecretStr("sentinel-pem-content"),
+            snowflakePrivatekeyPassphrase=CustomSecretStr("sentinel-passphrase"),
+        )
+        snowflake_conn = SnowflakeConnection(connection)
+        mock_p_key = MagicMock()
+        mock_p_key.private_bytes.return_value = b"sentinel_key_bytes"
+
+        with patch(
+            "metadata.ingestion.source.database.snowflake.connection.normalize_pem_string",
+            return_value="normalized-sentinel-pem",
+        ), patch(
+            "metadata.ingestion.source.database.snowflake.connection.serialization.load_pem_private_key",
+            return_value=mock_p_key,
+        ) as mock_load_key:
+            result = snowflake_conn._get_private_key()
+
+        mock_load_key.assert_called_once_with(
+            b"normalized-sentinel-pem",
+            password=b"sentinel-passphrase",
+            backend=ANY,
+        )
+        assert result == b"sentinel_key_bytes"

@@ -22,7 +22,11 @@ class TestAzureClient(unittest.TestCase):
         instance = AzureClient(credentials)
         instance.create_client()
 
-        mock_client_secret_credential.assert_called_once()
+        mock_client_secret_credential.assert_called_once_with(
+            tenant_id="tenantId",
+            client_id="clientId",
+            client_secret="clientSecret",
+        )
         mock_client_secret_credential.reset_mock()
 
         credentials = AzureCredentials(
