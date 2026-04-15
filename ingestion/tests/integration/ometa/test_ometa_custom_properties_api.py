@@ -735,3 +735,52 @@ class TestOMetaCustomPropertiesAPI:
                         == expected_custom_property["propertyType"]["name"]
                     )
         assert len(actual_custom_properties) == len(EXPECTED_CUSTOM_PROPERTIES)
+
+    def test_custom_property_name_formats(self, metadata, cp_schema):
+        """
+        Test that custom property names with all valid character formats
+        (underscores, dots, uppercase, digits, leading digits) are accepted
+        and persisted by the API.
+        """
+        prop_names = [
+            "plain_underscore",
+            "with.dot",
+            "CamelCase",
+            "UPPERCASE",
+            "lowercase",
+            "digits123",
+            "Mixed_Case.with123",
+            "123leading_digit",
+        ]
+
+        for name in prop_names:
+            metadata.create_or_update_custom_property(
+                OMetaCustomProperties(
+                    entity_type=Table,
+                    createCustomPropertyRequest=CreateCustomPropertyRequest(
+                        name=name,
+                        description=name,
+                        propertyType=metadata.get_property_type_ref(
+                            CustomPropertyDataTypes.STRING
+                        ),
+                    ),
+                )
+            )
+
+        extensions = {name: f"value_{name}" for name in prop_names}
+        table_name = generate_name()
+        table = _create_table(
+            metadata,
+            cp_schema.fullyQualifiedName,
+            name=table_name.root,
+            extensions=extensions,
+        )
+
+        res = metadata.get_by_name(
+            entity=Table,
+            fqn=table.fullyQualifiedName.root,
+            fields=["*"],
+        )
+
+        for name in prop_names:
+            assert res.extension.root[name] == f"value_{name}"
