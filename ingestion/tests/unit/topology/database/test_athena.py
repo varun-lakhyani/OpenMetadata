@@ -365,7 +365,17 @@ class TestAthenaService(unittest.TestCase):
         mock_inspector.get_table_comment.return_value = {"text": "desc"}
         mock_inspector.get_table_options.return_value = {
             "awsathena_location": "s3://bucket/path",
-            "awsathena_tblproperties": {"prop_key": "prop_value", "null_prop": None},
+            "awsathena_tblproperties": {
+                "prop_key": "prop_value",
+                "null_prop": None,
+                "with.dot": "dot_value",
+                "CamelCase": "camel_value",
+                "UPPERCASE": "upper_value",
+                "lowercase": "lower_value",
+                "digits123": "digit_value",
+                "Mixed_Case.with123": "mixed_value",
+                "123leading_digit": "leading_digit_value",
+            },
         }
         self.athena_source.get_table_description(
             MOCK_DATABASE_SCHEMA.name.root, MOCK_TABLE_NAME, mock_inspector
@@ -374,9 +384,16 @@ class TestAthenaService(unittest.TestCase):
         with patch.object(self.athena_source, "metadata") as mock_metadata:
             result = self.athena_source.get_table_extensions(MOCK_TABLE_NAME)
 
-        assert result == {"prop_key": "prop_value"}
+        assert result["prop_key"] == "prop_value"
         assert "null_prop" not in result
-        mock_metadata.create_or_update_custom_property.assert_called_once()
+        assert result["with.dot"] == "dot_value"
+        assert result["CamelCase"] == "camel_value"
+        assert result["UPPERCASE"] == "upper_value"
+        assert result["lowercase"] == "lower_value"
+        assert result["digits123"] == "digit_value"
+        assert result["Mixed_Case.with123"] == "mixed_value"
+        assert result["123leading_digit"] == "leading_digit_value"
+        assert mock_metadata.create_or_update_custom_property.call_count == 8
 
 
 SUBMISSION_DT = datetime(2024, 1, 2, 10, 0, 0)
