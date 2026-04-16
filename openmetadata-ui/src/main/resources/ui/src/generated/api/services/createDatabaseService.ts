@@ -1515,6 +1515,7 @@ export enum Authentication {
     ActiveDirectoryIntegrated = "ActiveDirectoryIntegrated",
     ActiveDirectoryPassword = "ActiveDirectoryPassword",
     ActiveDirectoryServicePrincipal = "ActiveDirectoryServicePrincipal",
+    SQLPassword = "SqlPassword",
 }
 
 /**

@@ -84,20 +84,24 @@
           "description": "Authentication from Connection String for Azure Synapse.",
           "type": "string",
           "enum": [
+            "SqlPassword",
             "ActiveDirectoryIntegrated",
             "ActiveDirectoryPassword",
             "ActiveDirectoryServicePrincipal"
-          ]
+          ],
+          "default": "SqlPassword"
         },
         "encrypt": {
           "title": "Encrypt",
           "description": "Encrypt from Connection String for Azure Synapse.",
-          "type": "boolean"
+          "type": "boolean",
+          "default": true
         },
         "trustServerCertificate": {
           "title": "Trust Server Certificate",
           "description": "Trust Server Certificate from Connection String for Azure Synapse.",
-          "type": "boolean"
+          "type": "boolean",
+          "default": true
         },
         "connectionTimeout": {
           "title": "Connection Timeout",

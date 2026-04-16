@@ -68,14 +68,17 @@ $$
 $$section
 ### Authentication $(id="authentication")
    - The `authentication` parameter determines the method of authentication when connecting to Synapse using ODBC (Open Database Connectivity).
-   - If you select **"Active Directory Password"**, you'll need to provide the password associated with your Azure Active Directory account.
-   - Alternatively, if you choose **"Active Directory Integrated"**, the connection will use the credentials of the currently logged-in user. This mode ensures secure and seamless connections with Synapse.
+   - **SqlPassword** *(default)*: Standard SQL username and password authentication. Provide the `Username` and `Password` fields.
+   - **Active Directory Password**: Azure Active Directory username and password. Provide the `Username` and `Password` fields.
+   - **Active Directory Integrated**: Uses the credentials of the currently logged-in user. No password required.
+   - **Active Directory Service Principal**: Uses an Azure AD application identity. Provide `Client ID`, `Client Secret`, and `Tenant ID`.
 $$
 
 $$section
 ### Encrypt $(id="encrypt")
    - The `encrypt` setting in the connection string pertains to data encryption during communication with Synapse.
    - When enabled, it ensures that data exchanged between your application and the database is encrypted, enhancing security.
+   - **Enabled by default.**
 $$
 
 $$section
@@ -83,6 +86,7 @@ $$section
 ### Trust Server Certificate $(id="trustServerCertificate"):
    - The `trustServerCertificate` option also relates to security.
    - When set to true, your application will trust the server's SSL certificate without validation. Use this cautiously, as it bypasses certificate validation checks.
+   - **Enabled by default.**
 $$
 
 $$section
