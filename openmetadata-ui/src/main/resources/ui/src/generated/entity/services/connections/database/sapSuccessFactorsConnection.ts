@@ -74,7 +74,7 @@ export interface SapSuccessFactorsConnection {
      * requested. The user must exist in the SF system and be permitted to use the OAuth2
      * application.
      */
-    username?: string;
+    username: string;
     /**
      * Client SSL verification.
      */

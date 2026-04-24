@@ -116,6 +116,6 @@
       "$ref": "../connectionBasicType.json#/definitions/supportsMetadataExtraction"
     }
   },
-  "required": ["baseUrl", "companyId"],
+  "required": ["baseUrl", "companyId", "username"],
   "additionalProperties": false
 }
